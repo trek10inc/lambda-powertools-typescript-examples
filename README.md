@@ -71,13 +71,13 @@ Logs in CloudWatch when using `console.log()`. When you click `Copy`, you get a 
 
 ![console-log](./img/console-log.png)
 
-Structrued logs in CloudWatch when using Lambda Powertools `logger.info()`. When you click `Copy`, you get a structured JSON object. This is makes searching logs super easy!
+Structured logs in CloudWatch when using Lambda Powertools `logger.info()`. When you click `Copy`, you get a structured JSON object. This is makes searching logs super easy!
 
 ![logger-info](./img/logger-info.png)
 
 ### Tracer
 
-**Note:** For Tracer, you can use a Decorator or [Middy](https://github.com/middyjs/middy). Middy is my preferred implementation because it's cleaner and also unlocks more functionality with the ability to know use custom or other open-source middleware.
+**Note:** For Tracer, you can use a Decorator or [Middy](https://github.com/middyjs/middy). Middy is my preferred implementation because it's cleaner and also unlocks more functionality with the ability to now use custom or other open-source middleware.
 
 TypeScript
 
