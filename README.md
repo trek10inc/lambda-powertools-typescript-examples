@@ -36,9 +36,13 @@ Below are some quick snippets of each utility in action to show how easy it is t
 TypeScript
 
 ```typescript
-import { Logger } from '@aws-lambda-powertools/logger';
+// import Logger and injectLambdaContext middleware to auto-capture and log the Lambda Context
+import { Logger, injectLambdaContext } from '@aws-lambda-powertools/logger';
+// import Middy
+import middy from '@middy/core';
+import { Context } from 'aws-lambda';
 
-// create Powertools Logger instance
+// create Powertools Logger instance with custom service name
 const logger = new Logger({ serviceName: 'HitCounterFunction' });
 
 const lambdaHandler = async (event: any, context: Context): Promise<unknown> => {
@@ -48,14 +52,22 @@ const lambdaHandler = async (event: any, context: Context): Promise<unknown> => 
   logger.info('Incoming Request:', { event });
 
   ...
+}
+
+// Use middy to add middleware to the Lambda handler. Although not required, this is the simplest way to use Lambda Powertools.
+// It cleans up the handler and removes the need to add boilerplate code, while also allowing you to add custom middleware if needed.
+export const handler = middy(lambdaHandler).use(injectLambdaContext(logger));
 ```
 
 JavaScript
 
 ```javascript
-const { Logger } = require('@aws-lambda-powertools/logger');
+// import Logger and injectLambdaContext middleware to auto-capture and log the Lambda Context
+const { Logger, injectLambdaContext } = require('@aws-lambda-powertools/logger');
+// import Middy
+const middy = require('@middy/core');
 
-// create Powertools Logger instance
+// create Powertools Logger instance with custom service name
 const logger = new Logger({ serviceName: 'HitCounterFunction' });
 
 const lambdaHandler = async function (event, context) {
@@ -65,6 +77,13 @@ const lambdaHandler = async function (event, context) {
   logger.info('Incoming Request:', { event });
 
   ...
+}
+
+// Use middy to add middleware to the Lambda handler. Although not required, this is the simplest way to use Lambda Powertools.
+// It cleans up the handler and removes the need to add boilerplate code, while also allowing you to add custom middleware if needed.
+const handler = middy(lambdaHandler).use(injectLambdaContext(logger));
+
+module.exports = { handler };
 ```
 
 Logs in CloudWatch when using `console.log()`. When you click `Copy`, you get a string representation of the entire log.
@@ -74,6 +93,10 @@ Logs in CloudWatch when using `console.log()`. When you click `Copy`, you get a 
 Structured logs in CloudWatch when using Lambda Powertools `logger.info()`. When you click `Copy`, you get a structured JSON object. This is makes searching logs super easy!
 
 ![logger-info](./img/logger-info.png)
+
+Query structured logs in CloudWatch Logs Insights.
+
+![logs-insights](./img/logs-insights.png)
 
 ### Tracer
 
@@ -98,15 +121,17 @@ const dynamoDBDocumentClient = DynamoDBDocumentClient.from(dynamoDBClient);
 const lambdaClient = tracer.captureAWSv3Client(new LambdaClient({}));
 
 const lambdaHandler = async (event: any, context: Context): Promise<unknown> => {
-  // Add custom annotation for filtering traces
+  // Optionally add custom annotation for filtering traces
   tracer.putAnnotation('awsRequestId', context.awsRequestId);
-  // Add custom metadata for traces
+  // Optionally add custom metadata for traces
   tracer.putMetadata('eventPayload', event);
 
   ...
 }
 
-export const handler = middy(lambdaHandler).use(captureLambdaHandler(tracer))
+// Use middy to add middleware to the Lambda handler. Although not required, this is the simplest way to use Lambda Powertools.
+// It cleans up the handler and removes the need to add boilerplate code, while also allowing you to add custom middleware if needed.
+export const handler = middy(lambdaHandler).use(captureLambdaHandler(tracer));
 ```
 
 JavaScript
@@ -127,15 +152,17 @@ const dynamo = tracer.captureAWSClient(new DynamoDB());
 const lambda = tracer.captureAWSClient(new Lambda());
 
 const lambdaHandler = async function (event, context) {
-  // Add custom annotation for filtering traces
+  // Optionally add custom annotation for filtering traces
   tracer.putAnnotation('awsRequestId', context.awsRequestId);
-  // Add custom metadata for traces
+  // Optionally add custom metadata for traces
   tracer.putMetadata('eventPayload', event);
 
   ...
 }
 
-const handler = middy(lambdaHandler).use(captureLambdaHandler(tracer))
+// Use middy to add middleware to the Lambda handler. Although not required, this is the simplest way to use Lambda Powertools.
+// It cleans up the handler and removes the need to add boilerplate code, while also allowing you to add custom middleware if needed.
+const handler = middy(lambdaHandler).use(captureLambdaHandler(tracer));
 
 module.exports = { handler };
 ```
@@ -153,14 +180,15 @@ Traces with additional subsegments in each function when you instrument the trac
 TypeScript
 
 ```typescript
-import { Metrics, MetricUnits } from '@aws-lambda-powertools/metrics';
+import { Metrics, MetricUnits, logMetrics } from '@aws-lambda-powertools/metrics';
+import middy from '@middy/core';
 import { Context } from 'aws-lambda';
 
 // create Powertools Metrics instance
 const metrics = new Metrics({ namespace: 'HitCounter', serviceName: 'HitCounterFunction' });
 
 const lambdaHandler = async (event: any, context: Context): Promise<unknown> => {
-  // create custom metric
+  // Optionally create a custom metric
   metrics.addMetric('hit', MetricUnits.Count, 1);
   metrics.publishStoredMetrics();
 
@@ -170,13 +198,14 @@ const lambdaHandler = async (event: any, context: Context): Promise<unknown> => 
 JavaScript
 
 ```javascript
-const { Metrics, MetricUnits } = require('@aws-lambda-powertools/metrics');
+const { Metrics, MetricUnits, logMetrics } = require('@aws-lambda-powertools/metrics');
+const middy = require('@middy/core');
 
 // create Powertools Metrics instance
 const metrics = new Metrics({ namespace: 'HitCounter', serviceName: 'HitCounterFunction' });
 
 const lambdaHandler = async function (event, context) {
-  // create custom metric
+  // Optionally create a custom metric
   metrics.addMetric('hit', MetricUnits.Count, 1);
   metrics.publishStoredMetrics();
 
