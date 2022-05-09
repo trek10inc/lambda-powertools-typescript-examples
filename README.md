@@ -98,8 +98,9 @@ const dynamoDBDocumentClient = DynamoDBDocumentClient.from(dynamoDBClient);
 const lambdaClient = tracer.captureAWSv3Client(new LambdaClient({}));
 
 const lambdaHandler = async (event: any, context: Context): Promise<unknown> => {
-
+  // Add custom annotation for filtering traces
   tracer.putAnnotation('awsRequestId', context.awsRequestId);
+  // Add custom metadata for traces
   tracer.putMetadata('eventPayload', event);
 
   ...
@@ -159,7 +160,6 @@ import { Context } from 'aws-lambda';
 const metrics = new Metrics({ namespace: 'HitCounter', serviceName: 'HitCounterFunction' });
 
 const lambdaHandler = async (event: any, context: Context): Promise<unknown> => {
-
   // create custom metric
   metrics.addMetric('hit', MetricUnits.Count, 1);
   metrics.publishStoredMetrics();
