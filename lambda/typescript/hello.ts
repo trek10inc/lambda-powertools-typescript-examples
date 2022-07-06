@@ -1,17 +1,16 @@
 import { injectLambdaContext, Logger } from '@aws-lambda-powertools/logger';
 import { captureLambdaHandler, Tracer } from '@aws-lambda-powertools/tracer';
-import { Context } from 'aws-lambda';
+import middy from '@middy/core';
+import { APIGatewayProxyStructuredResultV2, Context } from 'aws-lambda';
 
 // Middy is only needed if you want to inject Lambda Context information into the Logger instance
-import middy from '@middy/core';
-
 // create Powertools Logger instance
 const logger = new Logger({ serviceName: 'HelloFunction' });
 
 // create Powertools Tracer instance
 const tracer = new Tracer({ serviceName: 'HelloFunction' });
 
-const lambdaHandler = async (event: any, context: Context): Promise<unknown> => {
+const lambdaHandler = async (event: any, context: Context): Promise<APIGatewayProxyStructuredResultV2> => {
   // Old way of logging
   console.log('Incoming Request:', { event });
   // New way of logging using Powertools Logger

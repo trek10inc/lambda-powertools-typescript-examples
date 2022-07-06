@@ -40,12 +40,12 @@ TypeScript
 import { Logger, injectLambdaContext } from '@aws-lambda-powertools/logger';
 // import Middy
 import middy from '@middy/core';
-import { Context } from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyStructuredResultV2, Context } from 'aws-lambda';
 
 // create Powertools Logger instance with custom service name
 const logger = new Logger({ serviceName: 'HitCounterFunction' });
 
-const lambdaHandler = async (event: any, context: Context): Promise<unknown> => {
+const lambdaHandler = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyStructuredResultV2> => {
   // Old way of logging
   console.log('Incoming Request:', { event });
   // New way of logging using Powertools Logger
@@ -109,7 +109,7 @@ import { captureLambdaHandler, Tracer } from '@aws-lambda-powertools/tracer';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { LambdaClient } from '@aws-sdk/client-lambda';
-import { Context } from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyStructuredResultV2, Context } from 'aws-lambda';
 import middy from '@middy/core';
 
 // create Powertools Tracer instance
@@ -120,7 +120,7 @@ const dynamoDBClient = tracer.captureAWSv3Client(new DynamoDBClient({}));
 const dynamoDBDocumentClient = DynamoDBDocumentClient.from(dynamoDBClient);
 const lambdaClient = tracer.captureAWSv3Client(new LambdaClient({}));
 
-const lambdaHandler = async (event: any, context: Context): Promise<unknown> => {
+const lambdaHandler = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyStructuredResultV2> => {
   // Optionally add custom annotation for filtering traces
   tracer.putAnnotation('awsRequestId', context.awsRequestId);
   // Optionally add custom metadata for traces
@@ -182,12 +182,12 @@ TypeScript
 ```typescript
 import { Metrics, MetricUnits, logMetrics } from '@aws-lambda-powertools/metrics';
 import middy from '@middy/core';
-import { Context } from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyStructuredResultV2, Context } from 'aws-lambda';
 
 // create Powertools Metrics instance
 const metrics = new Metrics({ namespace: 'HitCounter', serviceName: 'HitCounterFunction' });
 
-const lambdaHandler = async (event: any, context: Context): Promise<unknown> => {
+const lambdaHandler = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyStructuredResultV2> => {
   // Optionally create a custom metric
   metrics.addMetric('hit', MetricUnits.Count, 1);
   metrics.publishStoredMetrics();

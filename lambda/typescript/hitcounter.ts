@@ -1,11 +1,11 @@
 import { injectLambdaContext, Logger } from '@aws-lambda-powertools/logger';
+import { logMetrics, Metrics, MetricUnits } from '@aws-lambda-powertools/metrics';
 import { captureLambdaHandler, Tracer } from '@aws-lambda-powertools/tracer';
-import { Metrics, MetricUnits, logMetrics } from '@aws-lambda-powertools/metrics';
-import middy from '@middy/core';
-import { Context } from 'aws-lambda';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import { DynamoDBDocumentClient, UpdateCommand } from '@aws-sdk/lib-dynamodb';
-import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
+import middy from '@middy/core';
+import { APIGatewayProxyEvent, APIGatewayProxyStructuredResultV2, Context } from 'aws-lambda';
 
 // create Powertools Logger instance
 const logger = new Logger({ serviceName: 'HitCounterFunction' });
@@ -21,7 +21,7 @@ const dynamoDBClient = tracer.captureAWSv3Client(new DynamoDBClient({}));
 const dynamoDBDocumentClient = DynamoDBDocumentClient.from(dynamoDBClient);
 const lambdaClient = tracer.captureAWSv3Client(new LambdaClient({}));
 
-const lambdaHandler = async (event: any, context: Context): Promise<unknown> => {
+const lambdaHandler = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyStructuredResultV2> => {
   // Old way of logging
   console.log('Incoming Request:', { event });
   // New way of logging using Powertools Logger
